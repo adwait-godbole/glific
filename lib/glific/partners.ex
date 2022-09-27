@@ -704,8 +704,8 @@ defmodule Glific.Partners do
       end)
   end
 
-  @spec unsuspend_org_list(DateTime.t()) :: list()
-  defp unsuspend_org_list(time \\ DateTime.utc_now()) do
+  @spec suspend_org_list(DateTime.t()) :: list()
+  defp suspend_org_list(time \\ DateTime.utc_now()) do
     Organization
     |> where([q], q.is_active == true)
     |> select([q], q.id)
@@ -732,7 +732,7 @@ defmodule Glific.Partners do
   """
   @spec unsuspend_organizations :: any()
   def unsuspend_organizations do
-    unsuspend_org_list()
+    suspend_org_list()
     |> Enum.each(&unsuspend_organization(&1))
   end
 
