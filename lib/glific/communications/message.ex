@@ -207,6 +207,7 @@ defmodule Glific.Communications.Message do
   @spec do_receive_message(Contact.t(), map(), atom()) :: :ok | {:error, String.t()}
   defp do_receive_message(contact, %{organization_id: organization_id} = message_params, type) do
     {:ok, contact} = Contacts.set_session_status(contact, :session)
+    {:ok, contact} = Contacts.update_contact(contact, %{last_message_at: DateTime.utc_now()})
 
     metadata = %{
       type: type,
