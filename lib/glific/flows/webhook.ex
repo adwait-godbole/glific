@@ -267,7 +267,7 @@ defmodule Glific.Flows.Webhook do
       case do_action(method, url, body, headers) do
         {:ok, :function, result} ->
           update_log(webhook_log_id, result)
-          result
+          format_response(result) |> IO.inspect()
 
         {:ok, %Tesla.Env{status: status} = message} when status in 200..299 ->
           case Jason.decode(message.body) do
