@@ -17,6 +17,9 @@ defmodule GlificWeb.APIAuthPlug do
   @impl true
   @spec fetch(Conn.t(), Config.t()) :: {Conn.t(), map() | nil}
   def fetch(conn, config) do
+    IO.inspect("Here")
+    IO.inspect(Pow.Plug.Session.fetch(conn, config))
+
     with {:ok, signed_token} <- fetch_access_token(conn),
          {user, metadata} <- get_credentials(conn, signed_token, config) do
       {conn, Map.put(user, :fingerprint, metadata[:fingerprint])}
@@ -70,7 +73,7 @@ defmodule GlificWeb.APIAuthPlug do
     # Lets also preload the language object to the user, before we store
     user = user |> Repo.preload(:language)
 
-    # The store caches will use their default `:ttl` settting. To change the
+    # The store caches will use their default `:ttl` setting. To change the
     # `:ttl`, `Keyword.put(store_config, :ttl, :timer.minutes(10))` can be
     # passed in as the first argument instead of `store_config`.
     CredentialsCache.put(
@@ -85,7 +88,11 @@ defmodule GlificWeb.APIAuthPlug do
       {user, [id: user.id, fingerprint: fingerprint, access_token: access_token]}
     )
 
-    {conn, Map.put(user, :fingerprint, fingerprint)}
+    user = Map.put(user, :fingerprint, fingerprint)
+
+    {conn, user} = Pow.Plug.Session.create(conn, user, config)
+
+    {conn, user}
   end
 
   @doc """

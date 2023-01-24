@@ -15,7 +15,6 @@ defmodule GlificWeb.Router do
     plug(:put_root_layout, {GlificWeb.LayoutView, :root})
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
-    plug(Pow.Plug.Session, otp_app: :glific)
   end
 
   scope path: "/feature-flags" do
@@ -32,6 +31,12 @@ defmodule GlificWeb.Router do
   end
 
   pipeline :api_protected do
+    plug(Pow.Plug.RequireAuthenticated, error_handler: GlificWeb.APIAuthErrorHandler)
+    plug(GlificWeb.ContextPlug)
+  end
+
+  pipeline :browser_auth do
+    plug(GlificWeb.APIAuthPlug, otp_app: :glific)
     plug(Pow.Plug.RequireAuthenticated, error_handler: GlificWeb.APIAuthErrorHandler)
     plug(GlificWeb.ContextPlug)
   end
@@ -63,7 +68,7 @@ defmodule GlificWeb.Router do
   end
 
   scope "/", GlificWeb do
-    pipe_through([:browser])
+    pipe_through([:browser, :browser_auth])
 
     live("/stats", StatsLive)
   end

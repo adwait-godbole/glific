@@ -13,7 +13,10 @@ defmodule GlificWeb.API.V1.SessionController do
   @doc false
   @spec create(Conn.t(), map()) :: Conn.t()
   def create(conn, %{"user" => user_params}) do
+    IO.inspect("Came in the controller")
     user_params = Map.put(user_params, "organization_id", conn.assigns[:organization_id])
+
+    IO.inspect(["config", conn.private[:pow_config]])
 
     conn
     |> Pow.Plug.authenticate_user(user_params)
